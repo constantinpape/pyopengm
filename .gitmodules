@@ -1,0 +1,3 @@
+[submodule "opengm"]
+	path = opengm
+	url = https://github.com/opengm/opengm.git

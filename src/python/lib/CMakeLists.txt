@@ -1,0 +1,9 @@
+addPythonModule(
+    NESTED_NAME
+        opengm
+    SOURCES
+        opengm.cxx
+        gm.cxx
+    LIBRRARIES
+        ${CPLEX_LIBRARIES}
+)

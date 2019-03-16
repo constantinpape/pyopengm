@@ -36,3 +36,18 @@ def graphicalModel(numberOfLabels,
         raise NameError('operator must be \'adder\' or \'multiplier\'')
 
 gm = graphicalModel
+
+
+def pottsFunctions(shape, valueEqual, valueNotEqual):
+  order = len(shape)
+  numL0 = np.array([int(shape[0])], dtype=label_type)
+  numL1 = np.array([int(shape[1])], dtype=label_type)
+
+  if order == 2:
+    return PottsFunctionVector(numL0, numL1,
+                               np.require(valueEqual, dtype=value_type),
+                               np.require(valueNotEqual, dtype=value_type))
+  elif order > 2:
+    raise RuntimeError("not yet implemented")
+  elif order < 2:
+    raise RuntimeError("len(shape)>=2 is violated")
