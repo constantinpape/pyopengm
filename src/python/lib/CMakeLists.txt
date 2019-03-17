@@ -4,6 +4,7 @@ addPythonModule(
     SOURCES
         opengm.cxx
         gm.cxx
+        fid.cxx
     LIBRRARIES
         ${CPLEX_LIBRARIES}
 )

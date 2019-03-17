@@ -1,7 +1,53 @@
 import numpy as np
+from ._opengm import _GraphicalModelAdder, FunctionIdentifier
 # TODO more specific imports
-from ._opengm import *
 from ._inference import *
+
+
+# TODO instead of a wrapper class, we should just monkey patch
+class GraphicalModelAdder():
+
+    def __init__(self, numberOfLabels, reserveNumFactorsPerVariable):
+        self._gm = _GraphicalModelAdder(numberOfLabels, reserveNumFactorsPerVariable)
+
+    def addFactors(self, fids, variableIndices, finalize=True):
+
+        # process the function ids
+        if isinstance(fids, FunctionIdentifier):
+            fidVec = FidVector()
+            fidVec.append(fids)
+            fids=fidVec
+        elif isinstance(fids, list):
+            fidVec = FidVector(fids)
+            fids = fidVec
+
+        # process the variable ids
+        if (isinstance(variableIndices, np.ndarray)):
+            ndim = variableIndices.ndim
+            if(ndim == 1):
+                return self._gm._addUnaryFactors_vector(fids, np.require(variableIndices, dtype=index_type), finalize)
+            elif(ndim == 2):
+                return self._gm._addFactors_vector(fids, np.require(variableIndices, dtype=index_type), finalize)
+        else:
+            raise NotImplementedError
+
+    # TODO figure out which of these we actually need!
+    def addFunctions(self, functions):
+        if isinstance(functions, np.ndarray):
+            if functions.ndim == 2:
+                return self._addUnaryFunctions_numpy(numpy.require(functions,dtype=value_type))
+            else:
+                return self._addFunctions_numpy(numpy.require(functions,dtype=value_type))
+        elif isinstance(self,list):
+          return self._addFunctions_list(functions)
+        else:
+          try:
+            return self._addFunctions_vector(functions)
+          except:
+            try:
+              return self._addFunctions_generator(functions)
+            except:
+              raise RuntimeError( "%s is an not a supported type for addFunctions "%(str(type(functions)),) )
 
 
 def graphicalModel(numberOfLabels,
@@ -24,14 +70,14 @@ def graphicalModel(numberOfLabels,
     # TODO figure out the correct label_type
     label_type = 'uint32'
     if isinstance(numberOfLabels, np.ndarray):
-        numL = numpy.require(numberOfLabels, dtype=label_type)
+        numL = np.require(numberOfLabels, dtype=label_type)
     else:
         numL = numberOfLabels
     if operator == 'adder' :
-        return adder.GraphicalModel(numL, reserveNumFactorsPerVariable)
+        return GraphicalModelAdder(numL, reserveNumFactorsPerVariable)
     elif operator=='multiplier' :
         raise NotImplementedError()
-        return multiplier.GraphicalModel(numL, reserveNumFactorsPerVariable)
+        # return GraphicalModelMultiplier(numL, reserveNumFactorsPerVariable)
     else:
         raise NameError('operator must be \'adder\' or \'multiplier\'')
 
